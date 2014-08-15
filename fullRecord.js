@@ -4882,7 +4882,10 @@ function getCanvas(cback){
 }
 function finish(){
     CanvasBufferEncoder.encode();
-    document.getElementById('giffer').src=CanvasBufferEncoder.getBase64Src();
+    var nimg = document.createElemenet("IMG");
+    nimg.src=CanvasBufferEncoder.getBase64Src();
+    nimg.setAttribute("style","position:fixed;top:0px;left:0px;");
+    document.body.appendChild(nimg);
 }
 getScreenshotArea(function(area){
     coord=area;
