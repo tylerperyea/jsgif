@@ -4888,17 +4888,58 @@ function getCanvas(cback){
         }
     });
 }
+function simpleNote(msg, timeout){
+	if(timeout==undefined){
+		timeout=3000;
+	}
+ 	var contdiv = document.createElement("DIV");
+	contdiv.innerHTML=msg;
+	contdiv.setAttribute("style",
+"text-align:right;color:white;position:fixed;top:0px;right:0px;background:rgba(0, 0, 0, 0.58);z-index:99999;padding:20px;font-size: 14pt;");
+	document.body.appendChild(contdiv);
+	setTimeout(function(){
+		contdiv.parentElement.removeChild(contdiv);
+	},timeout);
+}
 function finish(){
     CanvasBufferEncoder.encode();
+    var contdiv = document.createElement("DIV");
     var nimg = document.createElement("IMG");
+    //add button for direct download
+    //add notification on new frame
+    //add preview area
+    var hide =document.createElement("BUTTON");
+    hide.innerHTML="Close";
+    hide.addEventListener("click", function (event) {
+	var pdiv=event.target.parentElement;
+	pdiv.parentElement.removeChild(pdiv);
+    });
+    hide.setAttribute("style","display:block;margin:auto;");
+    var imgur =document.createElement("BUTTON");
+    imgur.innerHTML="Imgur Upload";
+    imgur.addEventListener("click", function (event) {
+	imgurUpload(CanvasBufferEncoder.getBase64());
+    });
+    imgur.setAttribute("style","display:block;margin:auto;");
+
+
     nimg.src=CanvasBufferEncoder.getBase64Src();
-    nimg.setAttribute("style","position:fixed;top:0px;left:0px;");
-    document.body.appendChild(nimg);
+    nimg.setAttribute("style","display:block;margin:auto;padding:50px;");
+    contdiv.setAttribute("style","text-align:middle;position:fixed;top:0px;left:0px;width:100%;height:100%;background:rgba(0, 0, 0, 0.58);z-index:99999;");
+
+    contdiv.appendChild(nimg);
+    contdiv.appendChild(hide);
+    contdiv.appendChild(imgur);
+    
+    
+    document.body.appendChild(contdiv);
 }
 getScreenshotArea(function(area){
     coord=area;
-    getCanvas();
-    CanvasBufferEncoder.init(tmpCanvas,undefined,undefined,undefined);
+    getCanvas(function(){
+CanvasBufferEncoder.init(tmpCanvas,undefined,undefined,undefined);
+	});
+    
 },"test");
 //CanvasBufferEncoder.init(tmpCanvas,undefined,undefined,undefined);
 document.addEventListener("keydown", function (event) {
@@ -4910,10 +4951,45 @@ document.addEventListener("keydown", function (event) {
 		}else{
 	            getCanvas(function(){
 			CanvasBufferEncoder.addFrame();
+			
+			simpleNote("Added Frame:" + CanvasBufferEncoder.scount);
 	            });
+		
 		}   
 		event.preventDefault();
 	        return false;
 	   }
     }
 });
+
+function AJAXPost(rawData,cback){
+    var authorization = 'Client-ID ' + "6a5400948b3b376";
+    var params = "image=" + encodeURIComponent(rawData) + "&type=base64";
+    
+    if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    }else{// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("POST",'https://api.imgur.com/3/image',false);
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+    //xmlhttp.setRequestHeader("Content-length", params.length);
+    xmlhttp.setRequestHeader("Connection", "keep-alive");
+    xmlhttp.setRequestHeader("Authorization", authorization);
+    xmlhttp.send(params);
+    console.log(xmlhttp);
+    if(xmlhttp.status==200){
+	var result = JSON.parse(xmlhttp.responseText);
+	cback(result);
+    }    
+}
+
+function imgurUpload(rawData) {
+    AJAXPost(rawData,function(result){
+	var id = result.data.id;
+        var url =   'https://imgur.com/gallery/' + id;
+        window.open(url,'_blank');
+    });
+  }
+/*
+var scr=document.createElement("SCRIPT");scr.src="https://rawgit.com/tylerperyea/jsgif/master/fullRecord.js";document.body.appendChild(scr);*/
