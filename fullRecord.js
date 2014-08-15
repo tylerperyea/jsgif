@@ -4896,14 +4896,16 @@ getScreenshotArea(function(area){
 document.addEventListener("keydown", function (event) {
     if(event.ctrlKey){
            if(event.which==32){
-               getCanvas(function(){
-			        CanvasBufferEncoder.addFrame();
-               });
-            event.preventDefault();
-            return false;
-		}    
+		if(event.shiftKey){
+		    finish();
+		}else{
+	            getCanvas(function(){
+			CanvasBufferEncoder.addFrame();
+	            });
+	            event.preventDefault();
+	            return false;
+		}   
+	   }
     }
 });
-
-
 
