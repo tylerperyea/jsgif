@@ -2887,6 +2887,7 @@ _html2canvas.Renderer.Canvas = function(options) {
     }
     function getAreaCanvas(area, cback){
 	 var fixed=true;
+         var pageoff={x:window.pageXOffset,y:window.pageYOffset};
          html2canvas(document.body, {
                 onrendered: function (canvas) {
                     var econt = document.createElement("CANVAS");
@@ -2896,10 +2897,8 @@ _html2canvas.Renderer.Canvas = function(options) {
 		    var x=-area.x;
 		    var y=-area.y;
 		    if(fixed){
-			x-=window.pageXOffset;
-			y-=window.pageYOffset;
-			console.log("X:" + window.pageXOffset);
-			console.log("Y:" + window.pageYOffset);
+			x-=pageoff.x;
+			y-=pageoff.y;
 		    }
                     canv.drawImage(canvas, x, y);
                     cback(econt);
