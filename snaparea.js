@@ -1,4 +1,4 @@
-    window.getScreenshot = function (callback) {
+    function getScreenshot(callback) {
         getScreenshotArea(function (area) {
             html2canvas(document.body, {
                 onrendered: function (canvas) {
@@ -14,7 +14,7 @@
         }, "Screenshot");
     }
 
-    window.getScreenshot = function(callback, titlet) {
+    function getScreenshot(callback, titlet) {
         var title = titlet;
         if (title == undefined) {
             title = "Area Select";
