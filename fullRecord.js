@@ -2886,13 +2886,21 @@ _html2canvas.Renderer.Canvas = function(options) {
         }, "Screenshot");
     }
     function getAreaCanvas(area, cback){
+	 var fixed=true;
          html2canvas(document.body, {
                 onrendered: function (canvas) {
                     var econt = document.createElement("CANVAS");
                     econt.width = area.width;
                     econt.height = area.height;
                     var canv = econt.getContext('2d');
-                    canv.drawImage(canvas, -area.x, -area.y);
+		    var x=-area.x;
+		    var y=-area.y;
+		    if(fixed){
+			x-=pageXOffset;
+			y-=pageYOffset;
+			
+		    }
+                    canv.drawImage(canvas, x, y);
                     cback(econt);
                 }
             });
@@ -4898,14 +4906,14 @@ document.addEventListener("keydown", function (event) {
            if(event.which==32){
 		if(event.shiftKey){
 		    finish();
+			
 		}else{
 	            getCanvas(function(){
 			CanvasBufferEncoder.addFrame();
 	            });
-	            event.preventDefault();
-	            return false;
 		}   
+		event.preventDefault();
+	        return false;
 	   }
     }
 });
-
