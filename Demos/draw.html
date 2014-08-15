@@ -1,52 +1,147 @@
+<!DOCTYPE html>
 <html>
 <head>
-<script src="./b64.js"></script>
-<script src="../LZWEncoder.js"></script>
-<script src="../NeuQuant.js"></script>
-<script src="../GIFEncoder.js"></script>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  
+  
+  <script type='text/javascript' src='//code.jquery.com/jquery-1.10.1.js'></script>
+  
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  
+  <style type='text/css'>
+    body{
+    text-align:center;
+}
 
-<style>
+#spriteshow{
+    display:inline-block;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+}
+.timing{
+    right:0;
+    position:absolute;
+    z-index:99;
+}
+.footer{
+    background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.2);
+    text-align:left;
+    position:fixed;
+    bottom:0;
+    width:100%;
+    padding:0;
+    margin:0;
+}
+body{
+    margin:0;
+    padding:0;
+}
+span{
+    display:inline-block;
+    vertical-align:top;
+}
+.tag div{
+    height:50px;
+}
+#bitmap{
+    border-radius:5px;
+    border:1px solid grey;
+}
+#preview{
+       border-radius:5px;
+    border:1px solid grey;
+    
+    
+}
 .frameStrip{
 	width:100%;
 	background:grey;
-	overflow-x:scroll;
+	overflow-x:scroll;   
+    overflow-y:visible;
 }
 button{
-	width:150px;
+color: #333;
+background-color: #FFF;
+padding: 10px 16px;
+font-size: 14px;
+line-height: 1.33;
+border-radius: 6px;
+border: 1px solid #CCC;
+cursor:pointer;
 }
-</style>
+button:hover{
+background:#CCC;
+}
+
+  </style>
+  <script src="http://rawgit.com/tylerperyea/jsgif/master/Demos/b64.js"></script>
+<script src="http://rawgit.com/tylerperyea/jsgif/master/LZWEncoder.js"></script>
+<script src="http://rawgit.com/tylerperyea/jsgif/master/NeuQuant.js"></script>
+<script src="http://rawgit.com/tylerperyea/jsgif/master/GIFEncoder.js"></script>
 </head>
 <body>
-<button onclick="clearCanv()">Clear Drawing</button>
-<button onclick="swapColor()">Swap Color</button>
+
+
 <br>
-<canvas id="bitmap"></canvas>
-<canvas id="preview"></canvas>
-<img id="image" />
+    <span class='tag'><h4>Draw</h4><div>
+        <button onclick="clearCanv()">Clear Drawing</button>
+        <button onclick="swapColor()">Swap Color</button></div><canvas id="bitmap"></canvas>
+    <div>
+    <button onclick="addFrame()">Add Frame</button>
+        <button onclick="remFrame()">Remove Last Frame</button>
+    </div>
+    </span>
+    <span class='tag' id="prevwrap"><h4>Preview</h4><div></div><canvas id="preview"></canvas><div></div></span>
+    <span class='tag' ><h4>Result</h4><div></div><img id="image" /><div></div></span>
 <br>
 
-<button onclick="addFrame()">Add Frame</button>
 
-<button id="prevButton" onclick="preview()">Show Preview</Button>
-<button onclick="finish()">Make Gif</Button>
+<button id="prevButton" onclick="preview()">Show Preview</button>
+<button onclick="finish()">Make Gif</button>
+<button style="display:none" id="imgrupload" onclick="upload()">Upload to Imgur</button>
 <br>
-<button onclick="remFrame()">Remove Last Frame</Button>
+
 <a style="display:none" id="dl" href="#" download="animation.gif">Download Gif file</a>
+<a target="_blank" style="display:none" id="imgr" href="#">Download Gif file</a>
+    <div class="footer">
+        
 <div class="asSprite">
-<h3>Sprite Frame Strip:</h3>
+    <h3 onclick="adv()" id="spriteshow"><a href="#">Sprite Frame Strip:</a></h3>
+    <div id="advanced">
+    <div class='timing'><input id='delay' value="300"></input>ms
+        <button onclick='updateTiming()'>apply</button></div>
 <div class="frameStrip">
 <canvas width=0 id="sprite"></canvas>
 </div>
+    </div>
 </div>
 <div style="display:none" class="asSprite">
 <h3>Canvas sprite backup:</h3>
 <canvas id="sprite2"></canvas>
 </div>
-<input id='delay' value="1000"></input>ms
-<button onclick='updateTiming()'>apply</button>
+</div>
 
-</body>
-<script>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+
+var advan=true;
+function adv(){
+   advan=!advan;
+    if(!advan){
+        document.getElementById("advanced").setAttribute("style","display:none");
+    }else{
+        document.getElementById("advanced").setAttribute("style","");
+        
+    }
+    
+    
+}
 var CanvasBufferEncoder={
 	canvas:undefined,
 	context:function(){
@@ -57,9 +152,12 @@ var CanvasBufferEncoder={
 	},
 	frameStripCanvas:undefined,
 	frameStripBufferCanvas:undefined,
-	delay:1000,
+	delay:300,
 	document:undefined,
 	stream:undefined,
+    getBase64:function(){
+        return encode64(this.stream.getData());
+    },
 	getBase64Src:function(){
 		return 'data:image/gif;base64,'+encode64(this.stream.getData());
 	},
@@ -80,10 +178,10 @@ var CanvasBufferEncoder={
 			can.getContext('2d').drawImage(canvas,-i*width,0);
 			encoder.addFrame(can.getContext('2d'));
 		}
+
 		encoder.setDelay(this.delay);
 		encoder.finish();
 		this.stream = encoder.stream();
-		//document.getElementById('image').src = 'data:image/gif;base64,'+encode64(encoder.stream().getData());
 	},
 	scount:0,
 	addFrame: function (){
@@ -105,7 +203,7 @@ var CanvasBufferEncoder={
 		//increase size:
 		this.frameStripBufferCanvas.width=this.frameStripCanvas.width;
 		//paint buffer:
-		this.frameStripBufferCanvas.getContext('2d').drawImage(document.getElementById('sprite'),0,0);
+		this.frameStripBufferCanvas.getContext('2d').drawImage(this.frameStripCanvas,0,0);
 		this.scount++;
 	},
 	remFrame: function(){
@@ -127,16 +225,26 @@ var CanvasBufferEncoder={
 		//increase size:
 		this.frameStripBufferCanvas.width=this.frameStripCanvas.width;
 		//paint buffer:
-		console.log(this.frameStripBufferCanvas.width);
+		//console.log(this.frameStripBufferCanvas.width);
 		if(this.frameStripBufferCanvas.width>0)
-			this.frameStripBufferCanvas.getContext('2d').drawImage(document.getElementById('sprite'),0,0);
+			this.frameStripBufferCanvas.getContext('2d').drawImage(this.frameStripCanvas,0,0);
 		this.scount--;
 	},
 	init:function(watchCanvas, stripCanvas, bufferCanvas, previewCanvas){
 		this.canvas = watchCanvas;
+        if(stripCanvas==undefined){
+            stripCanvas=document.createElement("CANVAS");   
+        }
+        if(bufferCanvas==undefined){
+            bufferCanvas=document.createElement("CANVAS");   
+        }
 		this.frameStripCanvas = stripCanvas;
 		this.frameStripBufferCanvas = bufferCanvas;
-		this.previewCanvas=previewCanvas;
+        this.frameStripCanvas.height=this.canvas.height;
+       this.frameStripCanvas.width=0;
+       this.frameStripBufferCanvas.width=0;//this.canvas.width;
+        this.frameStripBufferCanvas.height=this.canvas.height;
+       		this.previewCanvas=previewCanvas;
 		this.document=document;
 	},
 	inst:0,
@@ -171,12 +279,14 @@ var CanvasBufferEncoder={
 		}
 	}
 };
-
+function upload(){
+    imgurUpload(CanvasBufferEncoder.getBase64());
+}    
 //init:
 var canvas = document.getElementById('bitmap');
 var context = canvas.getContext('2d');
-canvas.width = 150;
-canvas.height = 150;
+canvas.width = 100;
+canvas.height = 100;
 
 function updateTiming(){
 	CanvasBufferEncoder.delay=document.getElementById("delay").value;
@@ -186,16 +296,21 @@ function finish(){
 	document.getElementById('image').src =CanvasBufferEncoder.getBase64Src();
 	document.getElementById("dl").href=document.getElementById("image").src;
 	document.getElementById("dl").download="animated.gif";
-	document.getElementById("dl").style="";
+	document.getElementById("dl").setAttribute("style","");
+    document.getElementById("imgrupload").setAttribute("style","");
+    
 }
 function preview(){
 	var ctext=document.getElementById('prevButton').innerHTML;
 	if(ctext == "Show Preview"){
 		document.getElementById('prevButton').innerHTML="Hide Preview";
 		CanvasBufferEncoder.setPreview(true);
+        document.getElementById('prevwrap').setAttribute("style","");
 	}else{
 		document.getElementById('prevButton').innerHTML="Show Preview";
 		CanvasBufferEncoder.setPreview(false);
+        document.getElementById('prevwrap').setAttribute("style","display:none");
+        
 	}
 
 }
@@ -206,115 +321,11 @@ function remFrame(){
 	CanvasBufferEncoder.remFrame();
 }
 
-//based on: https://developer.mozilla.org/en/Canvas_tutorial/Basic_animations#An_animation_example_2
-function clock(now){
-  var ctx = context;
-  ctx.save();
-  context.fillStyle = "rgb(255,255,255)";  
-  context.fillRect(0,0,150, 150); //GIF can't do transparent so do white
-
-  ctx.translate(75,75);
-  ctx.scale(0.4,0.4);
-  ctx.rotate(-Math.PI/2);
-  ctx.strokeStyle = "black";
-  ctx.fillStyle = "white";
-  ctx.lineWidth = 8;
-  ctx.lineCap = "round";
-
-  // Hour marks
-  ctx.save();
-  for (var i=0;i<12;i++){
-    ctx.beginPath();
-    ctx.rotate(Math.PI/6);
-    ctx.moveTo(100,0);
-    ctx.lineTo(120,0);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // Minute marks
-  ctx.save();
-  ctx.lineWidth = 5;
-  for (i=0;i<60;i++){
-    if (i%5!=0) {
-      ctx.beginPath();
-      ctx.moveTo(117,0);
-      ctx.lineTo(120,0);
-      ctx.stroke();
-    }
-    ctx.rotate(Math.PI/30);
-  }
-  ctx.restore();
-  
-  var sec = now.getSeconds();
-  var min = now.getMinutes();
-  var hr  = now.getHours();
-  hr = hr>=12 ? hr-12 : hr;
-
-  ctx.fillStyle = "black";
-
-  // write Hours
-  ctx.save();
-  ctx.rotate( hr*(Math.PI/6) + (Math.PI/360)*min + (Math.PI/21600)*sec )
-  ctx.lineWidth = 14;
-  ctx.beginPath();
-  ctx.moveTo(-20,0);
-  ctx.lineTo(80,0);
-  ctx.stroke();
-  ctx.restore();
-
-  // write Minutes
-  ctx.save();
-  ctx.rotate( (Math.PI/30)*min + (Math.PI/1800)*sec )
-  ctx.lineWidth = 10;
-  ctx.beginPath();
-  ctx.moveTo(-28,0);
-  ctx.lineTo(112,0);
-  ctx.stroke();
-  ctx.restore();
-  
-  // Write seconds
-  ctx.save();
-  ctx.rotate(sec * Math.PI/30);
-  ctx.strokeStyle = "#D40000";
-  ctx.fillStyle = "#D40000";
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(-30,0);
-  ctx.lineTo(83,0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(0,0,10,0,Math.PI*2,true);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(95,0,10,0,Math.PI*2,true);
-  ctx.stroke();
-  ctx.fillStyle = "#555";
-  ctx.arc(0,0,3,0,Math.PI*2,true);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.beginPath();
-  ctx.lineWidth = 14;
-  ctx.strokeStyle = '#325FA2';
-  ctx.arc(0,0,142,0,Math.PI*2,true);
-  ctx.stroke();
-
-  ctx.restore();
-  //addFrame();
-}
-
 CanvasBufferEncoder.init(canvas,
-document.getElementById("sprite"),
+ document.getElementById("sprite"),
 document.getElementById("sprite2"),
 document.getElementById("preview")
 );
-
-clock(new Date());
-setInterval(function(){
-	//clock(new Date());
-},1000);
-preview();
 
 var SignaturePad = (function (document) {
     "use strict";
@@ -654,8 +665,48 @@ function swapColor(){
 document.addEventListener("keydown", function (event) {
 		if(event.which==32){
 			addFrame();
-		}
+            event.preventDefault();
+            return false;
+		}    
+        
         });
+function imgurUpload(rawData) {
+    //    $imgurUpload.show();
+    // $group.hide();
+
+    var auth;
+    //if (token) authorization = 'Bearer ' + token;
+    //else 
+        authorization = 'Client-ID ' + "6a5400948b3b376";
+
+    $.ajax({
+      url: 'https://api.imgur.com/3/image',
+      method: 'POST',
+      headers: {
+        Authorization: authorization,
+        Accept: 'application/json'
+      },
+      data: {
+        image: rawData,
+        type: 'base64'
+      },
+      success: function(result) {
+        var id = result.data.id;
+        var url =   'https://imgur.com/gallery/' + id;
+          document.getElementById("imgr").href=url;
+          document.getElementById("imgr").innerHTML=url;
+          document.getElementById("imgr").setAttribute("style","");
+      }
+    });
+  }
+preview();
+//]]>  
 
 </script>
+
+
+</body>
+
+
 </html>
+
