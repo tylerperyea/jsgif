@@ -2898,7 +2898,8 @@ _html2canvas.Renderer.Canvas = function(options) {
 		    if(fixed){
 			x-=window.pageXOffset;
 			y-=window.pageYOffset;
-			
+			console.log("X:" + window.pageXOffset);
+			console.log("Y:" + window.pageYOffset);
 		    }
                     canv.drawImage(canvas, x, y);
                     cback(econt);
