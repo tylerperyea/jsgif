@@ -26,7 +26,7 @@
             });
     }
 
-    function getScreenshot(callback, titlet) {
+    function getScreenshotArea(callback, titlet) {
         var title = titlet;
         if (title == undefined) {
             title = "Area Select";
