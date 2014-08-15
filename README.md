@@ -1,3 +1,8 @@
+Drawing Example
+===============
+http://jsfiddle.net/fqbefech/1/show/
+
+
 Pure JavaScript HTML5 <canvas> to (Animated) GIF Conversion
 ===========================================================
 
