@@ -4882,7 +4882,7 @@ function getCanvas(cback){
 }
 function finish(){
     CanvasBufferEncoder.encode();
-    var nimg = document.createElemenet("IMG");
+    var nimg = document.createElement("IMG");
     nimg.src=CanvasBufferEncoder.getBase64Src();
     nimg.setAttribute("style","position:fixed;top:0px;left:0px;");
     document.body.appendChild(nimg);
