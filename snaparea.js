@@ -13,6 +13,18 @@
             });
         }, "Screenshot");
     }
+    function getAreaCanvas(area, cback){
+         html2canvas(document.body, {
+                onrendered: function (canvas) {
+                    var econt = document.createElement("CANVAS");
+                    econt.width = area.width;
+                    econt.height = area.height;
+                    var canv = econt.getContext('2d');
+                    canv.drawImage(canvas, -area.x, -area.y);
+                    cback(econt);
+                }
+            });
+    }
 
     function getScreenshot(callback, titlet) {
         var title = titlet;
