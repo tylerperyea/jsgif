@@ -2896,8 +2896,8 @@ _html2canvas.Renderer.Canvas = function(options) {
 		    var x=-area.x;
 		    var y=-area.y;
 		    if(fixed){
-			x-=pageXOffset;
-			y-=pageYOffset;
+			x-=window.pageXOffset;
+			y-=window.pageYOffset;
 			
 		    }
                     canv.drawImage(canvas, x, y);
